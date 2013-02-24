@@ -34,96 +34,109 @@
 	</div> 
 
 	<script type="text/javascript">
-		var stats, scene, renderer;
-		var camera, cameraControls;
+	  var stats, scene, renderer;
+	  var camera, cameraControls;
+	  
+	  loadModels(function(model){
+		  init(model);
+		  animate();
+	  });
+/*	  if( !init() ){
+		  animate();
+	  }
+*/	  // init the scene
+	  function init(model){
+		  
+		  if( Detector.webgl ){
+			  renderer = new THREE.WebGLRenderer({
+				  antialias		: true,	// to get smoother output
+				  preserveDrawingBuffer	: true	// to allow screenshot
+			  });
+			  renderer.setClearColorHex( 0xBBBBBB, 1 );
+			  // uncomment if webgl is required
+			  //}else{
+			  //	Detector.addGetWebGLMessage();
+			  //	return true;
+		  }else{
+			  alert("using canvas instead of webgl");
+			  renderer	= new THREE.CanvasRenderer();
+		  }
+		  renderer.setSize( window.innerWidth, window.innerHeight );
+		  document.getElementById('container').appendChild(renderer.domElement);
+		  
+		  // add Stats.js - https://github.com/mrdoob/stats.js
+		  stats = new Stats();
+		  stats.domElement.style.position	= 'absolute';
+		  stats.domElement.style.bottom	= '0px';
+		  document.body.appendChild( stats.domElement );
 
-
-		if( !init() )	animate();
-
-		// init the scene
-		function init(){
-
-			if( Detector.webgl ){
-				renderer = new THREE.WebGLRenderer({
-					antialias		: true,	// to get smoother output
-					preserveDrawingBuffer	: true	// to allow screenshot
-				});
-				renderer.setClearColorHex( 0xBBBBBB, 1 );
-			// uncomment if webgl is required
-			//}else{
-			//	Detector.addGetWebGLMessage();
-			//	return true;
-			}else{
-                                alert("using canvas instead of webgl");
-				renderer	= new THREE.CanvasRenderer();
-			}
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.getElementById('container').appendChild(renderer.domElement);
-
-			// add Stats.js - https://github.com/mrdoob/stats.js
-			stats = new Stats();
-			stats.domElement.style.position	= 'absolute';
-			stats.domElement.style.bottom	= '0px';
-			document.body.appendChild( stats.domElement );
-
-			// create a scene
-			scene = new THREE.Scene();
-
-			// put a camera in the scene
-			camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
-			camera.position.set(0, 0, 5);
-			scene.add(camera);
-
-			// create a camera contol
-			cameraControls	= new THREEx.DragPanControls(camera)
-
-			// transparently support window resize
-			THREEx.WindowResize.bind(renderer, camera);
-			// allow 'p' to make screenshot
-			THREEx.Screenshot.bindKey(renderer);
+		  lookatxyz = new MyLookAt();
+		  lookatxyz.domElement.style.position	= 'absolute';
+		  lookatxyz.domElement.style.bottom	= '0px';
+		  lookatxyz.domElement.style.left	= '100px';
+		  document.body.appendChild( lookatxyz.domElement );
+		  
+		  // create a scene
+		  scene = new THREE.Scene();
+		  
+		  // put a camera in the scene
+		  camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
+		  camera.position.set(0, 0, 5);
+		  scene.add(camera);
+		  
+		  // create a camera contol
+		  cameraControls	= new THREEx.DragPanControls(camera)
+		  
+		  // transparently support window resize
+		  THREEx.WindowResize.bind(renderer, camera);
+		  // allow 'p' to make screenshot
+		  THREEx.Screenshot.bindKey(renderer);
 			// allow 'f' to go fullscreen where this feature is supported
-			if( THREEx.FullScreen.available() ){
-				THREEx.FullScreen.bindKey();		
-				document.getElementById('inlineDoc').innerHTML	+= "- <i>f</i> for fullscreen";
-			}
+		  if( THREEx.FullScreen.available() ){
+			  THREEx.FullScreen.bindKey();		
+			  document.getElementById('inlineDoc').innerHTML	+= "- <i>f</i> for fullscreen";
+		  }
+		  
+		  // here you add your objects
+		  // - you will most likely replace this part by your own
+		  var geometry	= new THREE.TorusGeometry( 1, 0.42 );
+		  var material	= new THREE.MeshNormalMaterial();
+		  var mesh	= new THREE.Mesh( geometry, material );
+		  
+		  //scene.add( mesh );
+		  
+		  geometry = model;
+		  mesh = new THREE.Mesh(geometry , material);
+		  scene.add( mesh );
+	  }
+	  
+	  // animation loop
+	  function animate() {
+		  
+		  // loop on request animation loop
+		  // - it has to be at the begining of the function
+		  // - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+		  requestAnimationFrame( animate );
+		  
+		  // do the render
+		  render();
+		  
+		  // update stats
+		  stats.update();
 
-			// here you add your objects
-			// - you will most likely replace this part by your own
-			var geometry	= new THREE.TorusGeometry( 1, 0.42 );
-			var material	= new THREE.MeshNormalMaterial();
-			var mesh	= new THREE.Mesh( geometry, material );
-
-			scene.add( mesh );
-
-            geometry = planexyz(20,20,-2);
-            mesh = new THREE.Mesh(geometry , material);
-			scene.add( mesh );
+		  lookatxyz.update();
+	  }
+	  
+	  // render the scene
+	  function render() {
+		  
+		  // update camera controls
+		  cameraControls.update();
+		  
+		  // actually render the scene
+		  renderer.render( scene, camera );
 		}
-
-		// animation loop
-		function animate() {
-
-			// loop on request animation loop
-			// - it has to be at the begining of the function
-			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-			requestAnimationFrame( animate );
-
-			// do the render
-			render();
-
-			// update stats
-			stats.update();
-		}
-
-		// render the scene
-		function render() {
-
-			// update camera controls
-			cameraControls.update();
-
-			// actually render the scene
-			renderer.render( scene, camera );
-		}
+	  
 	  // create a plane with xyz
 	  function planexyz(width,height,zpos) {
 		  geometry = new THREE.PlaneGeometry(width,height,5,5);
@@ -132,6 +145,57 @@
 			  geometry.vertices[i].position.z = zpos;
 		  }
 		  return geometry
+	  }
+	  
+	  function loadModels(callback) {
+		  var loader = new THREE.JSONLoader(true);
+
+		  loader.load(
+			  "models/t-shape.js",
+			  function(geometry) {
+				  callback(geometry);
+			  }
+		  );
+	  }
+
+	  
+	  var MyLookAt = function() {
+		  //more or less stolen from stat.js...
+		  
+		  var container = document.createElement( 'div' );
+		  container.id = 'lookatxyz';
+		  container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer';
+
+		  var lookatDiv = document.createElement( 'div' );
+		  lookatDiv.id = 'lookatText';
+		  lookatDiv.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+		  lookatDiv.innerHTML = 'XYZ';
+		  container.appendChild( lookatDiv );
+		  
+		  var lookatText = document.createElement( 'div' );
+		  lookatText.id = 'lookatText';
+		  lookatText.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+		  lookatText.innerHTML = 'RPG';
+		  lookatDiv.appendChild( lookatText );
+
+		  var updateGraph = function ( dom ) {
+			  
+			  var child = dom.appendChild( dom.firstChild );
+			  
+		  }
+		  
+		  return {
+			  REVISION: 1,
+			  
+			  domElement: container,
+			  
+			  update: function (xpos, ypos, zpos) {
+				  
+				  lookatText.textContent = ' XYZ (' + xpos + '-' + ypos + '-' + zpos ')';
+				  updateGraph( lookatText );
+				  
+			  }
+		  };
 	  }
 	</script>
 </body>
