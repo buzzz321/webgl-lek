@@ -38,6 +38,8 @@
 	<script type="text/javascript">
 	  var stats, scene, renderer;
 	  var camera, cameraControls;
+	  var mymouseLook = true;
+	  var keyboard;
 	  
 	  loadModels(function(model){
 		  init(model);
@@ -93,7 +95,11 @@
 		  }
 
 		  //setup some more keyboard stuff
-		  var keyboard = new THREEx.KeyboardState();
+		  keyboard = new THREEx.KeyboardState();
+
+		  for (var n = 0; n < 10 ; n += 1){
+			  THREEx.KeyboardState.ALIAS["numpad " + n] = 96 + n;
+		  }
 		  
 		  // here you add your objects
 		  // - you will most likely replace this part by your own
@@ -115,6 +121,10 @@
 		  // - it has to be at the begining of the function
 		  // - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 		  requestAnimationFrame( animate );
+
+		  if (keyboard.pressed("numpad 9") === true){
+			  mymouseLook = !mymouseLook;
+		  }
 		  
 		  // do the render
 		  render();
@@ -134,7 +144,9 @@
 	  function render() {
 		  
 		  // update camera controls
-		  cameraControls.update();
+		  if (mymouseLook){
+			  cameraControls.update();
+		  }
 		  
 		  // actually render the scene
 		  renderer.render( scene, camera );
