@@ -25,7 +25,6 @@ var MyLookAt = function() {
 	
 	return {
 		REVISION: 1,
-		
 		domElement: container,
 		
 		update: function (xpos, ypos, zpos) {
@@ -34,4 +33,5 @@ var MyLookAt = function() {
 			updateGraph( lookatText );
 			
 		}
-	};
+	}
+};
