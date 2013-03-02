@@ -41,10 +41,7 @@
 		  init(model);
 		  animate();
 	  });
-/*	  if( !init() ){
-		  animate();
-	  }
-*/	  // init the scene
+
 	  function init(model){
 		  
 		  if( Detector.webgl ){
@@ -53,10 +50,6 @@
 				  preserveDrawingBuffer	: true	// to allow screenshot
 			  });
 			  renderer.setClearColorHex( 0xBBBBBB, 1 );
-			  // uncomment if webgl is required
-			  //}else{
-			  //	Detector.addGetWebGLMessage();
-			  //	return true;
 		  }else{
 			  alert("using canvas instead of webgl");
 			  renderer	= new THREE.CanvasRenderer();
@@ -124,7 +117,12 @@
 		  // update stats
 		  stats.update();
 
-		  lookatxyz.update();
+		  var xpos = cameraControls._object.position.x;
+		  var ypos = cameraControls._object.position.y;
+		  var zpos = cameraControls._object.position.z;
+		  
+		  lookatxyz.update( xpos.toFixed(2), ypos.toFixed(2), zpos.toFixed(2) );
+
 	  }
 	  
 	  // render the scene
@@ -168,13 +166,13 @@
 
 		  var lookatDiv = document.createElement( 'div' );
 		  lookatDiv.id = 'lookatText';
-		  lookatDiv.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+		  lookatDiv.style.cssText = 'color:#0ff00ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
 		  lookatDiv.innerHTML = 'XYZ';
 		  container.appendChild( lookatDiv );
 		  
 		  var lookatText = document.createElement( 'div' );
 		  lookatText.id = 'lookatText';
-		  lookatText.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+		  lookatText.style.cssText = 'color:#000ff00;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
 		  lookatText.innerHTML = 'RPG';
 		  lookatDiv.appendChild( lookatText );
 
@@ -191,7 +189,7 @@
 			  
 			  update: function (xpos, ypos, zpos) {
 				  
-				  lookatText.textContent = ' XYZ (' + xpos + '-' + ypos + '-' + zpos ')';
+				  lookatText.textContent = ' XYZ (' + xpos + '::' + ypos + '::' + zpos + ')';
 				  updateGraph( lookatText );
 				  
 			  }
